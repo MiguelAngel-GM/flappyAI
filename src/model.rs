@@ -3,14 +3,16 @@ use std::fs;
 
 pub struct Model {
     coefficients: [f32; 4],
-    intercept: f32
+    intercept: f32,
+    activation_func: String
 }
 
 impl Model {
     pub fn new() -> Self {
         Model {
             coefficients: [0.0, 0.0, 0.0, 0.0],
-            intercept: 0.0
+            intercept: 0.0,
+            activation_func: String::new()
         }
     }
 
@@ -24,8 +26,10 @@ impl Model {
         }
 
         self.intercept = params[4].parse::<f32>().expect("Parameter in model file is not a valid number");
+        self.activation_func = String::from(params[5]);
 
-        println!("{:?}, {}", self.coefficients, self.intercept);
+        println!("Loaded model with coeffs = {:?}, intercept = {} and {} activation function", 
+            self.coefficients, self.intercept, self.activation_func);
     }
 
     pub fn predict_action(&self, player: &Player, obstacle: &Obstacle) -> i32 {
@@ -33,18 +37,25 @@ impl Model {
         let velocity = player.velocity;
         let obstacle_distance = (obstacle.x - player.x) as f32;
         let gap_distance = (obstacle.gap_y as f32) - player.y;
-        println!("{},{},{},{}", floor_distance, velocity, obstacle_distance, gap_distance);
 
         let predicted_value = self.coefficients[0] * floor_distance + self.coefficients[1] * velocity
         + self.coefficients[2] * obstacle_distance + self.coefficients[3] * gap_distance;
 
-        println!("{}", predicted_value);
-
-        if predicted_value >= 0.0 {
-            1
+        if self.activation_func.eq(&String::from("step")) {
+            if predicted_value >= 0.0 {
+                1
+            }
+            else {
+                0
+            }
         }
         else {
-            0
+            if predicted_value >= 0.5 {
+                1
+            }
+            else {
+                0
+            }
         }
     }
 }
