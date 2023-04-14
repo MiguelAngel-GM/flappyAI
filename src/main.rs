@@ -2,6 +2,7 @@ mod state;
 mod player;
 mod obstacle;
 mod data;
+mod model;
 
 mod prelude {
     pub use bracket_lib::prelude::*;
@@ -9,6 +10,7 @@ mod prelude {
     pub use crate::obstacle::*;
     pub use crate::player::*;
     pub use crate::data::*;
+    pub use crate::model::*;
     pub use std::io;
     pub const SCREEN_WIDTH: i32 = 80;
     pub const SCREEN_HEIGHT: i32 = 50;
@@ -32,6 +34,9 @@ fn main() -> BError {
                 .build()?;
 
     match mode.trim() {
+        "1" => {
+            main_loop(context, State::new(false))
+        }
         _ => {
             main_loop(context, State::new(true))
         }

@@ -13,11 +13,18 @@ pub struct State {
     obstacle: Obstacle,
     score: i32,
     data: Data,
-    human_player: bool
+    human_player: bool,
+    model: Model
 }
 
 impl State {
     pub fn new(human_player: bool) -> Self {
+        let mut model = Model::new();
+
+        if !human_player {
+            model.load_parameters("model.txt");
+        }
+
         State {
             player: Player::new(5, 25),
             frame_time: 0.0,
@@ -25,7 +32,8 @@ impl State {
             obstacle: Obstacle::new(SCREEN_WIDTH, 0),
             score: 0,
             data: Data::new(),
-            human_player
+            human_player,
+            model
         }
     }
     
@@ -40,6 +48,7 @@ impl State {
         }
         
         if let Some(VirtualKeyCode::Space) = ctx.key {
+            self.data.register_data(&self.player, &self.obstacle, true);
             self.player.flap();
             jumps = true;
         }
@@ -59,8 +68,15 @@ impl State {
         }
 
         if self.human_player {
-            if jumps || self.player.frame % 20 == 0{
+            if self.player.frame % 20 == 0 {
                 self.data.register_data(&self.player, &self.obstacle, jumps);
+            }
+        }
+        else {
+            let action = self.model.predict_action(&self.player, &self.obstacle);
+
+            if action == 1 {
+                self.player.flap();
             }
         }
 

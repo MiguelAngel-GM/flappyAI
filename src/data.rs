@@ -19,6 +19,7 @@ impl Data {
         frame_data.insert(String::from("floor_distance"), (SCREEN_HEIGHT as f32) - player.y);
         frame_data.insert(String::from("velocity"), player.velocity);
         frame_data.insert(String::from("obstacle_distance"), (obstacle.x - player.x) as f32);
+        frame_data.insert(String::from("gap_distance"), (obstacle.gap_y as f32) - player.y);
         frame_data.insert(String::from("action"), if jumps {1.0} else {0.0});
 
         self.data.push(frame_data);
@@ -32,9 +33,9 @@ impl Data {
             .unwrap();
 
         self.data.iter().for_each(|entry| {
-            if let Err(e) = writeln!(file, "{},{},{},{}", entry.get(&String::from("floor_distance")).unwrap(), 
+            if let Err(e) = writeln!(file, "{:.4},{:.4},{:.4},{:.4},{}", entry.get(&String::from("floor_distance")).unwrap(), 
             entry.get(&String::from("velocity")).unwrap(), entry.get(&String::from("obstacle_distance")).unwrap(), 
-            entry.get(&String::from("action")).unwrap())
+            entry.get(&String::from("gap_distance")).unwrap(), entry.get(&String::from("action")).unwrap())
             {
                 eprintln!("Couldn't write to file: {}", e);
             }

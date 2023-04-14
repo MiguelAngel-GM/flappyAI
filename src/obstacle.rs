@@ -2,7 +2,7 @@ use crate::prelude::*;
 
 pub struct Obstacle {
     pub x: i32,
-    gap_y: i32, 
+    pub gap_y: i32, 
     size: i32,
 }
 
