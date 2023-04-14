@@ -1,10 +1,12 @@
-pub use crate::prelude::*;
+use crate::prelude::*;
+
+const DRAGON_FRAMES: [u16; 12] = [64, 64, 1, 1, 2, 2, 3, 3, 2, 2, 1, 1];
 
 pub struct Player {
     pub x: i32,
     pub y: f32,
-    velocity: f32,
-    frame: usize
+    pub velocity: f32,
+    pub frame: usize
 }
 
 impl Player {

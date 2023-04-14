@@ -1,4 +1,4 @@
-pub use crate::prelude::*;
+use crate::prelude::*;
 
 enum GameMode {
     Menu,
@@ -12,22 +12,27 @@ pub struct State {
     mode: GameMode,
     obstacle: Obstacle,
     score: i32,
+    data: Data,
+    human_player: bool
 }
 
 impl State {
-    pub fn new() -> Self {
+    pub fn new(human_player: bool) -> Self {
         State {
             player: Player::new(5, 25),
             frame_time: 0.0,
             mode: GameMode::Menu,
             obstacle: Obstacle::new(SCREEN_WIDTH, 0),
             score: 0,
+            data: Data::new(),
+            human_player
         }
     }
     
-    fn play(&mut self, ctx: &mut BTerm) {
+    fn play(&mut self, ctx: &mut BTerm) {        
         ctx.cls_bg(NAVY);
         self.frame_time += ctx.frame_time_ms;
+        let mut jumps = false;
         
         if self.frame_time > FRAME_DURATION {
             self.frame_time = 0.0;
@@ -36,6 +41,7 @@ impl State {
         
         if let Some(VirtualKeyCode::Space) = ctx.key {
             self.player.flap();
+            jumps = true;
         }
         
         self.player.render(ctx);
@@ -51,6 +57,13 @@ impl State {
         if (self.player.y as i32) > SCREEN_HEIGHT || self.obstacle.hit_obstacle(&self.player) {
             self.mode = GameMode::End;
         }
+
+        if self.human_player {
+            if jumps || self.player.frame % 20 == 0{
+                self.data.register_data(&self.player, &self.obstacle, jumps);
+            }
+        }
+
     }
 
     fn restart(&mut self) {
@@ -77,6 +90,10 @@ impl State {
     }
 
     fn dead(&mut self, ctx: &mut BTerm) {
+        if self.human_player {
+            self.data.save_data("data.csv");
+        }
+
         ctx.cls();
         ctx.print_color_centered(5, RED, BLACK, "You are dead!");
         ctx.print_centered(6, &format!("You earned {} points", self.score));
