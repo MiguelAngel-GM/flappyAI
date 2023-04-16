@@ -39,7 +39,9 @@ impl Model {
         let gap_distance = (obstacle.gap_y as f32) - player.y;
 
         let predicted_value = self.coefficients[0] * floor_distance + self.coefficients[1] * velocity
-        + self.coefficients[2] * obstacle_distance + self.coefficients[3] * gap_distance;
+        + self.coefficients[2] * obstacle_distance + self.coefficients[3] * gap_distance + self.intercept;
+
+        println!("{}", 1.0/(1.0 + (-predicted_value).exp()));
 
         if self.activation_func.eq(&String::from("step")) {
             if predicted_value >= 0.0 {
@@ -50,7 +52,7 @@ impl Model {
             }
         }
         else {
-            if predicted_value >= 0.5 {
+            if 1.0/(1.0 + (-predicted_value).exp()) >= 0.5 {
                 1
             }
             else {
